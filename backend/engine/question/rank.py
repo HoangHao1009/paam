@@ -1,3 +1,4 @@
+import pandas as pd
 from typing import List
 
 from .core_question import Question, Answer
@@ -71,3 +72,12 @@ class Rank(Question):
                     )    
         return elements
     
+    @property
+    def df(self):
+        data = [{'R_ID': respondent, 'answer': answer.code, 'value': answer.text}
+                for answer in self.answers 
+                for respondent in answer.respondents]
+                
+        df = pd.DataFrame(data).pivot(index='R_ID', columns='answer', values='value')
+        
+        return df

@@ -1,22 +1,31 @@
+from typing import List
+import pandas as pd
+
 from .core_question import Question, Answer
 from .helper_function import _get_duplicates
 from ..utils import spss_function
 from .number import Number
-from typing import List
 
 class Single(Question):
     def __init__(self, id: str, code: str, text: str, order: int, type: str, answers: List[Answer]):
         super().__init__(id, code, text, order, type, answers)
-        # self._check_invalid()
-    
-    def _check_invalid(self):
+        self.respondents = self._get_respondents()
+        self.scale_encode: bool = False
+
+    def _get_respondents(self):
         respondents = []
         for answers in self.answers:
             respondents.extend(answers.respondents)
+            
+        if len(respondents) == 0:
+            raise AttributeError(f"Question have no respondent")
+            
         invalid = _get_duplicates(respondents)
         
         if len(invalid) > 0:
             raise ValueError(f"Error - Duplicates occurs: {invalid}")
+        
+        return respondents
     
     @property
     def spss_syntax(self):
@@ -28,5 +37,15 @@ class Single(Question):
     
     def to_number(self) -> Number:
         return Number(**self.__dict__)
+    
+    @property
+    def df(self):
+        data = [
+            {'R_ID': respondent, self.code: answer.scale} if self.scale_encode else {'R_ID': respondent, self.code: answer.text} 
+            for answer in self.answers 
+            for respondent in answer.respondents
+        ]
+        return pd.DataFrame(data).set_index('R_ID')
+    
     
     
