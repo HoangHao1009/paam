@@ -1,7 +1,9 @@
 import pandas as pd
 from typing import List
 
-from .core_question import Question, Answer
+from .core_question import Question
+from .answer import Answer
+
 from .helper_function import _get_duplicates
 from ..utils import spss_function
 
@@ -10,17 +12,23 @@ from .single import Single
 class Rank(Question):
     def __init__(self, id: str, code: str, text: str, order: int, type: str, answers: List[Answer]):
         super().__init__(id, code, text, order, type, answers)
-        # self._check_invalid()
+        self.respondents = self._get_respondents()
     
-    def _check_invalid(self):
+    def _get_respondents(self):
         invalid = []
         for sa_question in self.decompose():
             respondents = []
             for answer in sa_question.answers:
                 respondents.extend(answer.respondents)
             invalid.extend(_get_duplicates(respondents))
+            
+        if len(respondents) == 0:
+            raise AttributeError(f"Question have no respondent")
+
         if len(invalid) > 0:
             raise ValueError(f"Error - Duplicates occurs: {invalid}")
+        
+        return respondents
         
     @property
     def spss_syntax(self):
@@ -79,5 +87,8 @@ class Rank(Question):
                 for respondent in answer.respondents]
                 
         df = pd.DataFrame(data).pivot(index='R_ID', columns='answer', values='value')
+        
+        if self._ctab_mode:
+            raise ValueError("Currently system unsupported")
         
         return df

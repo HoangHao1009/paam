@@ -18,9 +18,8 @@ async def fetch_all(urls: list, headers: dict):
         results = await asyncio.gather(*tasks)
         return results
     
-async def _get_data(survey_url: Union[list, str], headers: dict):
+async def _fetch_by_urls(survey_url: Union[list, str], headers: dict):
     if isinstance(survey_url, str):
         survey_url = [survey_url]
     data = await fetch_all(survey_url, headers)
     return data
-

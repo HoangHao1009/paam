@@ -1,7 +1,8 @@
 from typing import List
 import pandas as pd
 
-from .core_question import Question, Answer
+from .core_question import Question
+from .answer import Answer
 from .helper_function import _get_duplicates
 from ..utils import spss_function
 from .number import Number
@@ -30,7 +31,7 @@ class Single(Question):
     @property
     def spss_syntax(self):
         code = self.code
-        value_label_dict = {index: response.value for index, response in enumerate(self.answers, 1)}
+        value_label_dict = {index: answers.text for index, answers in enumerate(self.answers, 1)}
         var_label_command = spss_function.var_label(code, self.text)
         value_label_command = spss_function.value_label(code, value_label_dict)
         return [var_label_command, value_label_command]
@@ -45,7 +46,13 @@ class Single(Question):
             for answer in self.answers 
             for respondent in answer.respondents
         ]
-        return pd.DataFrame(data).set_index('R_ID')
+        
+        df = pd.DataFrame(data)
+        
+        if self._ctab_mode:
+            return df
+        else:
+            return df.set_index('R_ID')
     
     
     

@@ -1,5 +1,6 @@
 import pandas as pd
-from .core_question import Question, Answer
+from .core_question import Question
+from .answer import Answer
 from .helper_function import _get_duplicates
 from ..utils import spss_function
 from typing import List
@@ -36,5 +37,11 @@ class Number(Question):
             for answer in self.answers 
             for respondent in answer.respondents
         ]
-        return pd.DataFrame(data).set_index('R_ID')
+        
+        df = pd.DataFrame(data)
+        
+        if self._ctab_mode:
+            return df
+        else:
+            return df.set_index('R_ID')
     

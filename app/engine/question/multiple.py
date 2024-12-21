@@ -1,6 +1,7 @@
 import pandas as pd
 
-from .core_question import Question, Answer
+from .core_question import Question
+from .answer import Answer
 from .helper_function import _get_duplicates
 from ..utils import spss_function
 from typing import List
@@ -47,12 +48,19 @@ class Multiple(Question):
     
     @property
     def df(self):
+        if self._ctab_mode:
+            data = [{'R_ID': respondent, self.code: answer.text}
+                    for answer in self.answers 
+                    for respondent in answer.respondents]
+            return pd.DataFrame(data)
+
+        
         data = [{'R_ID': respondent, 'answer': answer.code, 'value': 1}
                 for answer in self.answers 
                 for respondent in answer.respondents]
                 
         df = pd.DataFrame(data).pivot(index='R_ID', columns='answer', values='value')
-        
+                        
         desired_cols = [answer.code for answer in self.answers]
         missing_columns = [col for col in desired_cols if col not in df.columns]
         

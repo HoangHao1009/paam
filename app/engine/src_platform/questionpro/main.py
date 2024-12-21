@@ -2,7 +2,7 @@ import asyncio
 from typing import Dict, List
 from copy import deepcopy
 
-from ._fetching_utils import _get_data
+from ._fetching_utils import _fetch_by_urls
 
 QUESTIONPRO_BASE_URL = "https://api.questionpro.com/a/api/v2/surveys/"
 
@@ -100,6 +100,7 @@ def process_answers(raw_question: dict, question_list: list, answer_list: list):
     question_list.append(new_question)
 
 class QuestionPro:
+    # Fix fetch api by page more wisely
     """
     Return object for getting QuestionPro data
     
@@ -112,10 +113,21 @@ class QuestionPro:
         self.api_key = api_key
         self.survey_url = QUESTIONPRO_BASE_URL + survey_id
         self.headers = {'api-key': self.api_key}
-        self.response = self._get_response()
-        self.data = self._get_data()
         
-    def _get_response(self) -> Dict[str, List[dict]]:
+    async def fetch_data(self):
+        """
+        Fetch and store survey, question, and response data.
+        This method should be called after the instance is created.
+        """
+        # Gọi bất đồng bộ các hàm lấy dữ liệu và đợi hoàn thành
+        self.response = await self._get_response()
+        self.data = await self._get_data()
+        self.name = self.response['survey_data']['name'].replace(' ', '_').strip()
+
+        # Trả về kết quả sau khi lấy xong dữ liệu
+        return self.response, self.data
+        
+    async def _get_response(self) -> Dict[str, List[dict]]:
         """
         Return a dictionary of survey information:
         - survey data
@@ -124,25 +136,31 @@ class QuestionPro:
         """
         result = {}
         
-        survey_response = asyncio.run(_get_data(self.survey_url, self.headers))
+        survey_response = await _fetch_by_urls(self.survey_url, self.headers)
         result.update({'survey_data': survey_response[0]['response']})
         
         total_response = result['survey_data']['completedResponses'] + result['survey_data']['startedResponses']
         
         question_url = self.survey_url + f"/questions?page=1&perPage=100"
-        question_response = asyncio.run(_get_data(question_url, self.headers))
+        question_response = await _fetch_by_urls(question_url, self.headers)
         result.update({'question_data': question_response[0]['response']})
         
         num_response_page = int(total_response/ 100) if total_response > 100 else 1
                 
         response_urls = [self.survey_url + f'/responses?page={i}&perPage=100&languageID=250' for i in range(1, num_response_page+1)]
+                
+        response_response = await _fetch_by_urls(response_urls, self.headers)
         
-        response_response = asyncio.run(_get_data(response_urls, self.headers))
-        result.update({'response_data': response_response[0]['response']})
+        responses = []
+        for page in response_response:
+            if 'error' not in page['response']:
+                responses.extend(page['response'])
+        
+        result.update({'response_data': responses})
 
         return result
     
-    def _get_data(self):
+    async def _get_data(self):
         "Return constructed object of questions, answers, respondents"
         question_list = []
         answer_list = []
@@ -157,7 +175,7 @@ class QuestionPro:
                     'code': raw_question['code'],
                     'text': raw_question['text'],
                     'order': raw_question['orderNumber'],
-                    'type': type,
+                    'type': 'text',
                     'answers': [],
                 }
                 question_list.append(new_question)
