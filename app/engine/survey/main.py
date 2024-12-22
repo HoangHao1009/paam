@@ -2,9 +2,10 @@ import pandas as pd
 from typing import Union, List
 from io import BytesIO
 import pyreadstat
+import zipfile
+import tempfile
 
 from ..question import Single, Multiple, Number, Rank, Answer
-from ..src_platform import QuestionPro
 from ..ctab import CrossTab
 from .utils import _to_excel_buffer, _check_elements
 from ..utils import spss_function
@@ -13,11 +14,17 @@ from ..config import SPSSConfig, DataFrameConfig
 question_type = Union[Single, Multiple, Number, Rank]
 
 class Survey:
-    def __init__(self, data: dict, name: str):
+    def __init__(self, data: dict, 
+                 control_vars: List[Union[Single, Multiple]]=[],
+                 target_vars: List[question_type]=[], 
+                 deep_vars: List[Union[Single, Multiple]]=[]
+            ):
         self.data = data
-        self.name = name
         self._df_config = DataFrameConfig()
         self._spss_config = SPSSConfig()
+        self.control_vars = control_vars
+        self.target_vars = target_vars
+        self.deep_vars = deep_vars
         
     def initialize(self):
         self.questions: List[question_type] = self._get_questions()
@@ -30,6 +37,13 @@ class Survey:
     @property
     def spss_config(self):
         return self._spss_config
+    
+    @property
+    def stats(self):
+        return {
+            'num_questions': len(self.data['questions']),
+            'num_respondents': len(self.data['respondents'])
+        }
         
     @property
     def question_code_mapping(self):
@@ -153,35 +167,7 @@ class Survey:
         target_question = self.get_question(target)
         deep_by = [self.get_question(deep) for deep in deep_by]
         return CrossTab(base=base_question, target=target_question, deep_by=deep_by)
-    
-    def set_control_variables(self, questions: List[str]):
-        """
-        Set variables in header of crosstab
-        Parameters:
-        questions: list of question code
-        """
-        _check_elements(questions, self.questions)       
-        self.control_vars = questions
-        self.target_vars = questions
-        
-    def set_target_variables(self, questions: List[str]):
-        """
-        Set variables in row of crosstab
-        Parameters:
-        questions: list of question code
-        """
-        _check_elements(questions, self.questions)       
-        self.target_vars = questions
-        
-    def set_deep_variables(self, questions: List[str]):
-        """
-        Set variables for filter crosstab
-        Parameters:
-        questions: list of question code
-        """
-        _check_elements(questions, self.questions)                   
-        self.deep_vars = questions
-        
+            
     @property
     def ctab_df(self):
         if self.df_config.scale_encode:
@@ -223,13 +209,20 @@ class Survey:
         """Export both raw data and cross-tab data to Excel buffers."""
         if self.df.empty:
             raise ValueError("Raw data DataFrame is empty")
-        if self.ctab_dfdf.empty:
+        if self.ctab_df.empty:
             raise ValueError("CrossTab DataFrame is empty")
 
-        rawdata_output = _to_excel_buffer(self.df, 'RawData')
-        ctab_output = _to_excel_buffer(self.ctab_df, 'CrossTab')
+        rawdata_buffer = _to_excel_buffer(self.df, 'RawData')
+        ctab_buffer = _to_excel_buffer(self.ctab_df, 'CrossTab')
+        
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            # Ghi nội dung từ buffer vào file ZIP
+            zip_file.writestr("RawData.xlsx", rawdata_buffer.getvalue())
+            zip_file.writestr("CrossTab.xlsx", ctab_buffer.getvalue())
+        zip_buffer.seek(0)
 
-        return rawdata_output, ctab_output
+        return zip_buffer
     
     @property
     def spss_syntax(self):
@@ -263,9 +256,11 @@ class Survey:
         df_old_config = self.df_config.__dict__
         self.set_df_config({'scale_encode': True})
         
-        sav_output = BytesIO()
-        pyreadstat.write_sav(self.df, sav_output)
-        sav_output.seek(0)
+        with tempfile.NamedTemporaryFile(suffix='.sav', delete=False) as temp_sav_file:
+            pyreadstat.write_sav(self.df, temp_sav_file.name)
+            temp_sav_file.seek(0)
+            sav_output = BytesIO(temp_sav_file.read())
+            sav_output.seek(0)
         
         self.set_df_config(df_old_config)
         
@@ -273,5 +268,12 @@ class Survey:
         sps_output.write(self.spss_syntax.encode('utf-8'))
         sps_output.seek(0)
         
-        return sav_output, sps_output
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            zip_file.writestr("data.sav", sav_output.getvalue())
+            zip_file.writestr("syntax.sps", sps_output.getvalue())
+        
+        zip_buffer.seek(0)
+        
+        return zip_buffer
     
