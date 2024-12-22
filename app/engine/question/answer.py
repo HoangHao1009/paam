@@ -19,3 +19,11 @@ class Answer:
     @property
     def code(self):
         return f"{self.question_code}_{self.scale}" if not self.is_rank else f"{self.question_code}RANK{self.scale}"
+    
+    def to_json(self):
+        return {
+            'answer_code': self.code,
+            'answer_scale': self.scale,
+            'answer_text': self.text,
+            'answer_respondents': self.respondents,
+        }

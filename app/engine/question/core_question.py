@@ -27,7 +27,7 @@ Question(code={self.code}, text={self.text}, type={self.type}, num_answers={len(
     
     def __repr__(self):
         return f"Question(code={self.code}, text={self.text}, type={self.type}, num_answers={len(self.answers)})"
-    
+        
     def get_answer(self, query, by: Literal['text', 'scale']) -> Answer:
         for answer in self.answers:
             compare_attr = answer.text if by == 'text' else answer.scale
@@ -49,3 +49,13 @@ Question(code={self.code}, text={self.text}, type={self.type}, num_answers={len(
                     break
         self.answers = new_answers
         
+    def to_json(self):
+        answers_json = [answer.to_json() for answer in self.answers]
+        return {
+            'question_code': self.code,
+            'question_text': self.text,
+            'question_type': self.type,
+            'question_respondents': self.respondents,
+            'question_answers': answers_json
+        }
+            
