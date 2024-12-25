@@ -1,5 +1,6 @@
 from typing import List, Literal, Union
 from .answer import Answer
+from ..utils import snake_to_camel
         
 class Question:
     def __init__(self, id: str, code: str, text: str, order: int, type: str, answers: List[Answer] = []):
@@ -49,13 +50,16 @@ Question(code={self.code}, text={self.text}, type={self.type}, num_answers={len(
                     break
         self.answers = new_answers
         
-    def to_json(self):
-        answers_json = [answer.to_json() for answer in self.answers]
-        return {
+    def to_json(self, snake_case: bool=False):
+        answers_json = [answer.to_json(snake_case) for answer in self.answers]
+        question_json = {
             'question_code': self.code,
             'question_text': self.text,
             'question_type': self.type,
             'question_respondents': self.respondents,
             'question_answers': answers_json
         }
-            
+        if snake_case:
+            return question_json
+        else:
+            return {snake_to_camel(key): value for key, value in question_json.items()}

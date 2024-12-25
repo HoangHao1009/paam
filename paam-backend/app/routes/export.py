@@ -24,9 +24,9 @@ async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
     export_settings = cache_db.get('export_settings')
     survey = Survey(
         data=survey_data,
-        control_vars=export_settings['control_vars'],
-        target_vars=export_settings['target_vars'],
-        deep_vars=export_settings['deep_vars'],
+        control_vars=export_settings['controlVars'],
+        target_vars=export_settings['targetVars'],
+        deep_vars=export_settings['deepVars'],
     )
     survey.initialize()
     
@@ -44,9 +44,9 @@ async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
     export_settings = cache_db.get('export_settings')
     survey = Survey(
         data=survey_data,
-        control_vars=export_settings['control_vars'],
-        target_vars=export_settings['target_vars'],
-        deep_vars=export_settings['deep_vars'],
+        control_vars=export_settings['controlVars'],
+        target_vars=export_settings['targetVars'],
+        deep_vars=export_settings['deepVars'],
     )
     survey.initialize()
     

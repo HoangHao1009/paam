@@ -12,11 +12,11 @@ async def crosstab(crosstab_schema: CrossTabSchema, cache_db: RedisCacheDB=Depen
     survey = cache_db.get_survey()
     survey.initialize()
     
-    crosstab = survey.crosstab(base=crosstab_schema.base, target=crosstab_schema.target, deep_by=crosstab_schema.deep_by)
+    crosstab = survey.crosstab(base=crosstab_schema.base, target=crosstab_schema.target, deep_by=crosstab_schema.deepBy)
     
     return JSONResponse(
         content={
-            'crosstab_data': crosstab.df.to_json()
+            'crosstabData': crosstab.df.to_json()
         },
         status_code=200
     )
