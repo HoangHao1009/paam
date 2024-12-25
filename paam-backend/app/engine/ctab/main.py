@@ -86,7 +86,7 @@ class CrossTab:
         if self.config.alpha:
             test_df = _sig_test(pivot_table, row_total, self.config.alpha, self.config.adjust)
             if self.config.pct:
-                pct_pivot_table = round_df(pct_pivot_table, row_total, self.config.round_digit)
+                pct_pivot_table = round_df(pivot_table, row_total, self.config.round_digit)
                 df =  pct_pivot_table.astype(str) + ' ' + test_df.astype(str)
             else:
                 df = pivot_table.astype(str) + ' ' + test_df.astype(str)

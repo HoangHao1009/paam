@@ -19,3 +19,32 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Giãn dòng trong các ô thẻ <td> và <th> */
+.table-bordered th, .table-bordered td {
+  border: 1px solid black;
+  padding: 10px;
+  text-align: left;
+  line-height: 1.5; /* Điều chỉnh giãn dòng */
+}
+
+.table-bordered th {
+  background-color: #f3f4f6; /* Màu nền cho header */
+}
+
+/* Đảm bảo giãn dòng bằng nhau */
+.table-bordered tr {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Trường hợp cần giãn đều các dòng */
+.table-bordered {
+  border-collapse: collapse;
+}
+
+
+/* Áp dụng cho bảng, đảm bảo nội dung không bị tràn */
+.table-bordered th, .table-bordered td {
+  width: 150px; /* Cố định chiều rộng để dễ dàng thử nghiệm tràn văn bản */
+}

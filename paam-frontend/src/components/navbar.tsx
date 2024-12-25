@@ -11,7 +11,7 @@ interface CanvasNavBarProps {
 const CanvasNavBar: FC<CanvasNavBarProps> = ({ items, current, className = "" }) => {
   const router = useRouter();
   return (
-    <div className={`flex flex-row items-start gap-10 ${className}`}>
+    <div className={`flex flex-row items-start gap-10 font-sans font-semibold text-lg ${className}`}>
       {items.map((item, index) => {
         const itemRoute = `/${current}/${item.toLowerCase()}`;
         const handleClick = () => {

@@ -30,7 +30,7 @@ export default function RootLayout({
 
   const defaultRoute = {
     Survey: "/survey/provider/",
-    Analyze: "/analyze/",
+    Analyze: "/analyze/crosstab",
     Chat: "/chat/",
     Create: "/create/",
     Export: "/export/",

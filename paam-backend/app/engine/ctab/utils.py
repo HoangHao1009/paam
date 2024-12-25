@@ -5,7 +5,9 @@ from ..question import Single, Multiple
 
 
 def round_df(df: pd.DataFrame, total: pd.Series, round_digit: int):
-    return df.div(total.values, axis=1).map(lambda x: f'{round(x*100, round_digit)}%' if x != 0 and not pd.isna(x) else 0)
+    total_aligned = total.reindex(df.columns, fill_value=0)
+
+    return df.div(total_aligned, axis=1).map(lambda x: f'{round(x*100, round_digit)}%' if x != 0 and not pd.isna(x) else 0)
 
 def fillna(df: pd.DataFrame) -> pd.DataFrame:
     return df.fillna(0).replace('nan ', 0)

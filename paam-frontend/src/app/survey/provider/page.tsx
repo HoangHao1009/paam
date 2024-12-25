@@ -42,8 +42,8 @@ const Provider = () => {
   };
   return (
     <div>
-      <Canvas className="flex flex-col gap-10 pl-10">
-        <CanvasNavBar items={items} current="survey" className="font-sans font-semibold text-lg"/>
+      <Canvas className="flex flex-col gap-10">
+        <CanvasNavBar items={items} current="survey"/>
         <form className="flex flex-col gap-5 pl-5">
           <label className="flex flex-row items-center gap-5 font-sans text-sm font-semibold">
             <p className="w-16">Survey ID</p>

@@ -6,7 +6,13 @@ interface CanvasProps {
 }
 
 const Canvas: FC<CanvasProps> = ({ children, className = "" }) => {
-  return <div className={`fixed mx-72 mt-20 flex w-[900px] h-1000 rounded-3xl bg-white pt-8 h-[500px] shadow-sm shadow-slate-400 ${className}`}>{children}</div>;
+  return (
+    <div
+      className={`h-1000 fixed mx-72 mt-20 flex h-[500px] w-[900px] rounded-3xl bg-white pl-10 pt-8 shadow-sm shadow-slate-400 ${className}`}
+    >
+      {children}
+    </div>
+  );
 };
 
 export default Canvas;
