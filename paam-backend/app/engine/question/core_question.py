@@ -57,7 +57,8 @@ Question(code={self.code}, text={self.text}, type={self.type}, num_answers={len(
             'question_text': self.text,
             'question_type': self.type,
             'question_respondents': self.respondents,
-            'question_answers': answers_json
+            'question_answers': answers_json,
+            'ctab_mode': str(self._ctab_mode),
         }
         if snake_case:
             return question_json

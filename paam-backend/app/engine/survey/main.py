@@ -152,8 +152,10 @@ class Survey:
         
     @property
     def df(self):
+        for question in self.questions:
+            question._ctab_mode = False
         dfs = [question.df for question in self.questions]
-        return pd.concat(dfs, axis=1)
+        return pd.concat(dfs, axis=1).reset_index()
         
     def crosstab(self, base, target, deep_by: list=[]) -> CrossTab:
         """
@@ -256,8 +258,10 @@ class Survey:
         df_old_config = self.df_config.__dict__
         self.set_df_config({'scale_encode': True})
         
+        df = self.df
+        
         with tempfile.NamedTemporaryFile(suffix='.sav', delete=False) as temp_sav_file:
-            pyreadstat.write_sav(self.df, temp_sav_file.name)
+            pyreadstat.write_sav(df, temp_sav_file.name)
             temp_sav_file.seek(0)
             sav_output = BytesIO(temp_sav_file.read())
             sav_output.seek(0)

@@ -11,6 +11,7 @@ interface QuestionProps {
   questionType: string;
   questionRespondents: Array<string>;
   questionAnswers: Array<AnswerProps>;
+  ctabMode: boolean;
 }
 
 const Question = ({
@@ -19,6 +20,7 @@ const Question = ({
   questionType,
   questionRespondents,
   questionAnswers,
+  ctabMode,
 }: QuestionProps) => {
   return (
     <div className="flex flex-col gap-2 rounded-md bg-slate-400 p-2 w-1/2">
@@ -29,6 +31,7 @@ const Question = ({
       <div className="flex flex-row gap-2">
         <p>{questionType}</p>
         <p>n: {questionRespondents.length}</p>
+        <p>ctabmode: {ctabMode}</p>
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ export default function RootLayout({
     Analyze: "/analyze/crosstab",
     Chat: "/chat/",
     Create: "/create/",
-    Export: "/export/",
+    Export: "/export/setting",
   };
 
   return (

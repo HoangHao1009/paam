@@ -10,7 +10,6 @@ class Multiple(Question):
     def __init__(self, id: str, code: str, text: str, order: int, type: str, answers: List[Answer]):
         super().__init__(id, code, text, order, type, answers)
         self.respondents = self._get_respondents()
-        # self.ctab_mode = False
     
     def _get_respondents(self):
         invalid = []

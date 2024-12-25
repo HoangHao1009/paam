@@ -75,7 +75,7 @@ class CrossTab:
 
         for col in missing_cols:
             pivot_table[col] = 0
-            row_total.loc[col] = 0
+            # row_total.loc[col] = 0
                     
         pivot_table = pivot_table[desired_cols]
         
