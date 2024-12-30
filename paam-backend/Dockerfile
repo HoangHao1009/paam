@@ -1,8 +1,8 @@
-FROM python:3.13.1
+FROM python:3.10-alpine 
 
-WORKDIR /usr/src/app
+RUN apk add --no-cache gcc musl-dev libffi-dev g++ make zlib-dev bash
 
-RUN pip install --upgrade pip
+WORKDIR /app
 
 COPY . .
 

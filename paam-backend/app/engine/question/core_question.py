@@ -12,6 +12,17 @@ class Question:
         self.answers = answers
         self.respondents = []
         self._ctab_mode = False
+        
+    def get_describe(self):
+        answers = ""
+        for answer in self.answers:
+            answers += f"        --> {answer.scale} - {answer.text} - num_respondent: {len(answer.respondents)}\n"
+        describe = f"""
+Question(code={self.code}, text={self.text}, type={self.type}, num_answers={len(self.answers)}, num_respondent={len(self.respondents)})
+-> answers:
+{answers}
+        """
+        return describe
                         
     def __str__(self):
         answers = ""
@@ -25,7 +36,7 @@ Question(code={self.code}, text={self.text}, type={self.type}, num_answers={len(
 {self.respondents}
         """
         return describe
-    
+        
     def __repr__(self):
         return f"Question(code={self.code}, text={self.text}, type={self.type}, num_answers={len(self.answers)})"
         

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import survey, analyze, export, survey
+from app.routes import survey, analyze, export, survey, ai
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -21,6 +21,7 @@ app.add_middleware(
 app.include_router(survey.router, prefix="/survey", tags=["Survey"])
 app.include_router(analyze.router, prefix="/analyze", tags=["Analytic"])
 app.include_router(export.router, prefix="/export", tags=["Export"])
+app.include_router(ai.router, prefix="/ai", tags=["AI"])
 
 @app.get("/")
 async def root():

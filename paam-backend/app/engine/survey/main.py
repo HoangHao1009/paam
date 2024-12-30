@@ -157,7 +157,7 @@ class Survey:
         dfs = [question.df for question in self.questions]
         return pd.concat(dfs, axis=1).reset_index()
         
-    def crosstab(self, base, target, deep_by: list=[]) -> CrossTab:
+    def crosstab(self, base, target, deep_by: list=[], alpha: float=0, pct: bool=False) -> CrossTab:
         """
         Create a crosstab for 2 questions
         Parameters:
@@ -168,7 +168,10 @@ class Survey:
         base_question = self.get_question(base)
         target_question = self.get_question(target)
         deep_by = [self.get_question(deep) for deep in deep_by]
-        return CrossTab(base=base_question, target=target_question, deep_by=deep_by)
+        ctab = CrossTab(base=base_question, target=target_question, deep_by=deep_by)
+        ctab.config.alpha = alpha
+        ctab.config.pct = pct
+        return ctab
             
     @property
     def ctab_df(self):
