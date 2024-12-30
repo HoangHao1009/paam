@@ -43,9 +43,9 @@ const Crosstab = () => {
 
   return (
     <div>
-      <Canvas className="flex flex-col gap-10">
+      <Canvas className="flex flex-col gap-2">
         <CanvasNavBar items={items} current="analyze" />
-        <form className="flex flex-row gap-3 items-center font-sans text-sm font-semibold">
+        <form className="flex flex-row gap-5 items-center font-sans text-sm font-semibold mb-5">
           <div className="flex flex-row items-center gap-5">
             <label className="flex flex-row items-center gap-2">
               Base Question:
@@ -96,7 +96,7 @@ const Crosstab = () => {
         </form>
         <div
           dangerouslySetInnerHTML={{ __html: ctabData }}
-          className="table-bordered scrollbar-none h-1/2 w-[800px] overflow-scroll rounded-md border-2 border-black font-sans text-[10px]"
+          className="table-bordered scrollbar-none h-[320px] w-[800px] overflow-scroll rounded-md border-2 border-black font-sans text-[10px]"
         />
       </Canvas>
     </div>

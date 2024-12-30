@@ -31,7 +31,6 @@ const Question = ({
       <div className="flex flex-row gap-2">
         <p>{questionType}</p>
         <p>n: {questionRespondents.length}</p>
-        <p>ctabmode: {ctabMode}</p>
       </div>
     </div>
   );

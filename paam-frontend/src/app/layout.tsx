@@ -26,13 +26,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const sidebarItems = ["Survey", "Analyze", "Chat", "Create", "Export"];
+  const sidebarItems = ["Survey", "Analyze", "PAAM Assitant", "Export"];
 
   const defaultRoute = {
     Survey: "/survey/provider/",
     Analyze: "/analyze/crosstab",
-    Chat: "/chat/",
-    Create: "/create/",
+    "PAAM Assitant": "/ai/chat/",
     Export: "/export/setting",
   };
 
