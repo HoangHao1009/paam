@@ -1,6 +1,15 @@
-FROM python:3.10-alpine 
+FROM python:3.12-alpine 
 
-RUN apk add --no-cache gcc musl-dev libffi-dev g++ make zlib-dev bash
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    libffi-dev \
+    g++ \
+    make \
+    zlib-dev \
+    bash \
+    postgresql-dev \
+    libpq
 
 WORKDIR /app
 

@@ -2,23 +2,30 @@ from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.types import Command
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.language_models.chat_models import BaseChatModel
-from langgraph.graph.graph import CompiledGraph
 from langgraph.graph.state import CompiledStateGraph
+# from langgraph.checkpoint.memory import MemorySaver 
+# from langgraph.checkpoint.postgres import PostgresSaver
 
 from typing_extensions import TypedDict, Literal, List
+from dotenv import load_dotenv, find_dotenv
+import os
+from psycopg import Connection
 
 from .analyzer_agent import AnalyzerAgent
 from .research_agent import ResearchAgent
 from app.engine import Survey
 
+_ = load_dotenv(find_dotenv())
+
 class State(MessagesState):
     next: str
 
 class PAAMSupervisor:
-    def __init__(self, llm: BaseChatModel, survey: Survey, urls: List[str]=[], tavily_max_result: int=1):
+    def __init__(self, llm: BaseChatModel, urls: List[str]=[], 
+                 tavily_max_result: int=1, thread_id: str="1"
+            ):
         self.llm = llm
-        self.survye = survey
-        self.analyzer_agent = AnalyzerAgent(llm, survey).initialize()
+        self.config = {"configurable": {"thread_id": thread_id}}
         self.research_agent = ResearchAgent(llm, urls, tavily_max_result).initialize() 
         self.members = ["analyzer", "researcher", "chitchater"]     
         self.system_prompt = (
@@ -26,9 +33,13 @@ class PAAMSupervisor:
             "\n\nThe workers' specialties:\n"
             "- **analyzer**: Query information and Crosstab on survey questions.\n"
             "- **researcher**: Research based on given topic.\n"
-            "- **chitchater**: Casual chat with a focus on market research and analysis.\n"
+            "- **chitchater**: Casual, normal chat who is. Use this worker when other worker doesnt able to answer\n"
             "\nAssign the appropriate worker for the task: 'analyzer', 'researcher', or 'chitchater'. If no work is needed or you unsure, respond with 'FINISH'."
         )  
+        
+    def add_survey(self, survey: Survey):
+        self.survey = survey
+        self.analyzer_agent = AnalyzerAgent(self.llm, survey).initialize()
         
     def analyzer_node(self, state: State) -> Command[Literal["supervisor"]]:
         result = self.analyzer_agent.invoke(state)
@@ -79,12 +90,12 @@ class PAAMSupervisor:
             goto=goto
         )
     
-    def initialize(self) -> CompiledStateGraph:
+    def initialize(self) -> StateGraph:
         builder = StateGraph(State)
         builder.add_node("supervisor", self.supervisor_node)
         builder.add_node("analyzer", self.analyzer_node)
         builder.add_node("researcher", self.research_node)
         builder.add_node("chitchater", self.chitchat_node)
         builder.add_edge(START, "supervisor")
-        
-        return builder.compile()
+
+        return builder

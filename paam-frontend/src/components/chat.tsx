@@ -6,15 +6,57 @@ interface Message {
   text: string;
 }
 
-interface ChatFrameProps {
-  onSend: (message: string) => Promise<string>; // No 'undefined' allowed
-  title?: string;
-}
+interface ChatFrameProps {}
 
-const ChatFrame: React.FC<ChatFrameProps> = ({ onSend, title = "Chat" }) => {
+const ChatFrame: React.FC<ChatFrameProps> = () => {
   const [messages, setMessage] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  const handleSendMessage = async (message: string): Promise<void> => {
+    try {
+      const response = await fetch("http://localhost:8000/ai/chat/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+        toast.error("Fail to fetch response");
+        return;
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let partialText = "";
+
+      const botMessage: Message = { sender: "bot", text: "" };
+      setMessage((prev) => [...prev, botMessage]);
+
+      while (!done) {
+        const { value, done: readerDone } = (await reader?.read()) ?? {};
+        done = readerDone || false;
+
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true });
+          partialText += chunk;
+
+          setMessage((prev) =>
+            prev.map((msg, index) =>
+              index === prev.length - 1 ? { ...msg, text: partialText } : msg
+            )
+          );
+        }
+      }
+    } catch (error) {
+      toast.error(`Error when fetching ${error}`);
+      setMessage((prev) => [
+        ...prev,
+        { sender: "bot", text: `ERROR: ${error}` },
+      ]);
+    }
+  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -25,25 +67,29 @@ const ChatFrame: React.FC<ChatFrameProps> = ({ onSend, title = "Chat" }) => {
     setLoading(true);
 
     try {
-      const botReply = await onSend(input); // Pass a non-empty string
-      const botMessage: Message = { sender: "bot", text: botReply };
-      setMessage((prev) => [...prev, botMessage]);
-    } catch (error) {
-      toast.error(`Bot can not reply ${error}`);
+      await handleSendMessage(input);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
   return (
-    <div className="flex flex-col w-full h-[400px] mx-auto border rounded-lg shadow-lg p-4 bg-white">
-      <h2 className="text-lg font-bold mb-2">{title}</h2>
-      <div className="flex-1 overflow-y-auto border p-2 mb-4">
+    <div className="mx-auto flex h-[450px] w-[95%] flex-col bg-white p-4">
+      <div className="mb-4 flex flex-1 flex-col overflow-y-auto border p-2">
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`p-2 mb-2 rounded ${
-              message.sender === 'user' ? 'bg-slate-500 ml-44 text-white w-3/4' : 'bg-gray-200 text-black w-3/4'
+            className={`mb-2 max-w-[70%] break-words rounded p-2 text-black ${
+              message.sender === "user"
+                ? "ml-auto bg-blue-300 text-right"
+                : "mr-auto bg-gray-200 text-left"
             }`}
           >
             {message.text}
@@ -53,18 +99,19 @@ const ChatFrame: React.FC<ChatFrameProps> = ({ onSend, title = "Chat" }) => {
       <div className="flex gap-2">
         <input
           type="text"
-          className="flex-1 border rounded p-2"
+          className="flex-1 rounded border p-2"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder="Type a message..."
           disabled={loading}
         />
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           onClick={sendMessage}
           disabled={loading}
         >
-          {loading ? 'Sending...' : 'Send'}
+          {loading ? "Sending..." : "Send"}
         </button>
       </div>
     </div>
