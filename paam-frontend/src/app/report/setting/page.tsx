@@ -1,64 +1,75 @@
 "use client";
 import Canvas from "@/components/canvas";
 import CanvasNavBar from "@/components/navbar";
-import { ChangeEvent } from "react";
-import { useState } from "react";
-import axios from "axios";
-import { AxiosResponse } from "axios";
-
+import axios, { AxiosResponse } from "axios";
+import { ChangeEvent, useState } from "react";
 import { toast } from "react-toastify";
 
-const Provider = () => {
-  const items = ['Provider', 'Questions']
+const ExportSetting = () => {
+  const items = ["Setting", "Data", "PPTX"];
 
-  const [surveyRequest, setSurveyRequest] = useState({
-    surveyId: "",
-    apiKey: "",
-    srcPlatform: "questionpro",
+  const [exportSettingRequest, setexportSettingRequest] = useState({
+    controlVars: [],
+    targetVars: [],
+    deepVars: [],
   });
-
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setSurveyRequest((prev) => ({ ...prev, [name]: value }));
+
+    let parseValue;
+
+    try {
+      parseValue = value ? JSON.parse(value) : value;
+    } catch {
+      parseValue = value;
+    }
+
+    setexportSettingRequest((prev) => ({ ...prev, [name]: parseValue }));
   };
 
   const handleOnClick = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    setIsLoading(true);
     try {
       const response: AxiosResponse = await axios.post(
-        "http://localhost:8000/survey",
-        surveyRequest,
+        "http://localhost:8000/report/settings",
+        exportSettingRequest,
       );
-      toast.success("Create survey success");
+      toast.success(`Message: ${response.data.message}`);
     } catch (error) {
-      toast.error("Create survey failed");
-    } finally {
-      setIsLoading(false);
+      toast.error(`Error when Set export config ${e}`);
     }
   };
+
   return (
     <div>
       <Canvas className="flex flex-col gap-10">
-        <CanvasNavBar items={items} current="survey"/>
+        <CanvasNavBar items={items} current="report" />
         <form className="flex flex-col gap-5 pl-5">
           <label className="flex flex-row items-center gap-5 font-sans text-sm font-semibold">
-            <p className="w-16">Survey ID</p>
+            <p className="w-28">Control Variables</p>
             <input
               type="text"
-              name="surveyId"
+              name="controlVars"
               className="h-7 w-40 rounded-md border-2 border-gray-300"
               onChange={handleOnChange}
             />
           </label>
           <label className="flex flex-row items-center gap-5 font-sans text-sm font-semibold">
-            <p className="w-16">API Key</p>
+            <p className="w-28">Target Variables</p>
             <input
               type="text"
-              name="apiKey"
+              name="targetVars"
+              className="h-7 w-40 rounded-md border-2 border-gray-300"
+              onChange={handleOnChange}
+            />
+          </label>
+          <label className="flex flex-row items-center gap-5 font-sans text-sm font-semibold">
+            <p className="w-28">Deep Variables</p>
+            <input
+              type="text"
+              name="deepVars"
               className="h-7 w-40 rounded-md border-2 border-gray-300"
               onChange={handleOnChange}
             />
@@ -67,7 +78,7 @@ const Provider = () => {
             className="h-10 w-24 rounded-md bg-slate-600 text-sm font-semibold text-white"
             onClick={handleOnClick}
           >
-            {isLoading ? "Loading..." : "Get Survey"}
+            Set
           </button>
         </form>
       </Canvas>
@@ -75,4 +86,4 @@ const Provider = () => {
   );
 };
 
-export default Provider;
+export default ExportSetting;

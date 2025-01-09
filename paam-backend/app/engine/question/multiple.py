@@ -15,7 +15,7 @@ class Multiple(Question):
         invalid = []
         respondents = []
         for answers in self.answers:
-            respondents.append(answers.respondents)
+            respondents.extend(answers.respondents)
             duplicates = _get_duplicates(answers.respondents)
             invalid.extend(duplicates)
             
@@ -25,7 +25,7 @@ class Multiple(Question):
         if len(invalid) > 0:
             raise ValueError(f"Error - Duplicates occurs: {invalid}")
         
-        return respondents
+        return list(set(respondents))
         
     @property
     def spss_syntax(self):

@@ -41,6 +41,7 @@ langgraph-checkpoint==2.0.9
 langgraph-checkpoint-postgres==2.0.9
 langgraph-sdk==0.1.48
 langsmith==0.2.6
+lxml==5.3.0
 marshmallow==3.23.2
 matplotlib-inline==0.1.7
 msgpack==1.1.0
@@ -54,6 +55,7 @@ packaging==24.2
 pandas==2.2.3
 parso==0.8.4
 patsy==1.0.1
+pillow==11.1.0
 platformdirs==4.3.6
 pluggy==1.5.0
 prompt_toolkit==3.0.48
@@ -66,10 +68,13 @@ pydantic==2.10.4
 pydantic-settings==2.7.0
 pydantic_core==2.27.2
 Pygments==2.18.0
+pypdf==5.1.0
 pyreadstat==1.2.8
 pytest==8.3.4
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
+python-multipart==0.0.20
+python-pptx==1.0.2
 pytz==2024.2
 PyYAML==6.0.2
 pyzmq==26.2.0
@@ -96,4 +101,5 @@ tzdata==2024.2
 urllib3==2.3.0
 uvicorn==0.34.0
 wcwidth==0.2.13
+XlsxWriter==3.2.0
 yarl==1.18.3

@@ -7,9 +7,11 @@ import tempfile
 
 from ..question import Single, Multiple, Number, Rank, Answer
 from ..ctab import CrossTab
-from .utils import _to_excel_buffer, _check_elements
+from .utils import _to_excel_buffer, _check_elements, _add_chart_to_prs
 from ..utils import spss_function
 from ..config import SPSSConfig, DataFrameConfig
+
+from pptx import Presentation
 
 question_type = Union[Single, Multiple, Number, Rank]
 
@@ -284,3 +286,87 @@ class Survey:
         
         return zip_buffer
     
+    def to_datasets(self):
+        question_data = [
+            {
+                "question_id": question._id,
+                "question_code": question.code, 
+                "question_text": question.text, 
+                "question_type": question.type,
+                "question_order": question.order,
+            }
+            for question in self.questions
+        ]
+        
+        dim_question = pd.DataFrame(question_data)
+        
+        answer_data = [
+            {
+                "answer_id": answer._id,
+                "answer_code": answer.code, 
+                "answer_text": answer.text, 
+                "answer_scale": answer.scale,
+                "question_code": answer.question_code
+            }
+            for question in self.questions for answer in question.answers
+        ]
+        
+        dim_answer = pd.DataFrame(answer_data)
+                
+        fact_data = [
+            {
+                "respondent_id": respondent,
+                "question_id": question._id,
+                "question_code": question.code,
+                "answer_id": answer._id,
+                "answer_code": answer.code,
+                "answer_text": answer.text,
+                "answer_scale": answer.scale
+            }
+            for question in self.questions for answer in question.answers for respondent in answer.respondents
+        ]
+        
+        fact = pd.DataFrame(fact_data)
+        
+        self.set_df_config({'scale_encode': False})
+        dim_respondent_intext = self.df
+        self.set_df_config({'scale_encode': True})
+        dim_respondent_inscale = self.df
+        
+        dim_question_buffer = _to_excel_buffer(dim_question, 'dimQuestion', index=False)
+        dim_answer_buffer = _to_excel_buffer(dim_answer, 'dimAnswer', index=False)
+        fact_buffer = _to_excel_buffer(fact, 'fact', index=False)
+        dim_respondent_intext_buffer = _to_excel_buffer(dim_respondent_intext, 'dimRespondentInText', index=True)
+        dim_respondent_inscale_buffer = _to_excel_buffer(dim_respondent_inscale, 'dimRespondentInScale', index=True)
+        
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            # Ghi nội dung từ buffer vào file ZIP
+            zip_file.writestr("dimQuestion.xlsx", dim_question_buffer.getvalue())
+            zip_file.writestr("dimAnswer.xlsx", dim_answer_buffer.getvalue())
+            zip_file.writestr("fact.xlsx", fact_buffer.getvalue())
+            zip_file.writestr("dimRespondentInText.xlsx", dim_respondent_intext_buffer.getvalue())
+            zip_file.writestr("dimRespondentInScale.xlsx", dim_respondent_inscale_buffer.getvalue())
+
+        zip_buffer.seek(0)
+
+        return zip_buffer
+    
+    def to_ppt(self):
+        prs = Presentation()
+        for base in self.control_vars:
+            for target in self.target_vars:
+                ctab = self.crosstab(base, target).df
+                _add_chart_to_prs(prs, ctab, f'{base}_{target}')
+                
+        pptx_buffer = BytesIO()
+        prs.save(pptx_buffer)
+        pptx_buffer.seek(0)
+        
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+            zip_file.writestr("PPTX_Chart.pptx", pptx_buffer.read())
+
+        zip_buffer.seek(0)
+        
+        return zip_buffer

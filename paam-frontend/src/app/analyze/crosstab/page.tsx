@@ -7,7 +7,7 @@ import axios from "axios";
 
 
 const Crosstab = () => {
-  const items = ["Crosstab", "Another"];
+  const items = ["Crosstab", "Chat"];
 
   const [ctabRequest, setCtabRequest] = useState({
     base: "",
@@ -20,13 +20,10 @@ const Crosstab = () => {
   const [ctabData, setCtabData] = useState("");
 
   const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
 
-    let processedValue = value;
+    const processedValue = type === "checkbox" ? checked : value;
 
-    if (name === 'pct') {
-        processedValue = value ? JSON.parse(value) : value;
-    }
     setCtabRequest((prev) => ({ ...prev, [name]: processedValue }));
   };
 
@@ -79,9 +76,10 @@ const Crosstab = () => {
             <label className="flex flex-row items-center gap-2">
               PERCENTAGE:
               <input
-                type="text"
+                type="checkbox"
                 name="pct"
-                className="h-7 w-14 rounded-md border-2 border-gray-300"
+                checked={ctabRequest.pct}
+                className="h-6 w-6 cursor-pointer"
                 onChange={handleOnChange}
               />
             </label>
@@ -96,7 +94,7 @@ const Crosstab = () => {
         </form>
         <div
           dangerouslySetInnerHTML={{ __html: ctabData }}
-          className="table-bordered scrollbar-none h-[320px] w-[800px] overflow-scroll rounded-md border-2 border-black font-sans text-[10px]"
+          className="table-bordered scrollbar-thin scrollbar-corner-background h-[320px] w-[800px] overflow-scroll rounded-md border-2 border-black font-sans text-[10px]"
         />
       </Canvas>
     </div>

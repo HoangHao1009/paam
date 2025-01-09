@@ -15,7 +15,7 @@ const ChatFrame: React.FC<ChatFrameProps> = () => {
 
   const handleSendMessage = async (message: string): Promise<void> => {
     try {
-      const response = await fetch("http://localhost:8000/ai/chat/", {
+      const response = await fetch("http://localhost:8000/analyze/chat/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
