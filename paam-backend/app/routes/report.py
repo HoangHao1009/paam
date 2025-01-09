@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi.responses import StreamingResponse, JSONResponse
 
 from app.db.redis import get_redisdb, RedisCacheDB
 from app.engine import Survey
@@ -17,6 +17,21 @@ async def set_export(export_setting_schema: ExportSettingSchema, cache_db: Redis
         'message': 'Setting export successfully',
         'settings': export_settings
     }
+    
+@router.post("/pptx_template")
+async def set_pptx_template(file: UploadFile = File(...), cache_db: RedisCacheDB=Depends(get_redisdb)):
+    try:
+        file_location = f"/uploads/{file.filename}"
+        cache_db.set("pptx_template_file_location", file_location)
+        with open(file_location, "wb") as f:
+            f.write(await file.read())
+            
+        return {"message": "File uploaded successfully", "filename": file.filename}
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"message": f"Error during file upload: {e}"}
+        )
 
 @router.get("/excel")
 async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
@@ -82,6 +97,10 @@ async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
 async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
     survey_data = cache_db.get('survey_data')
     export_settings = cache_db.get('export_settings')
+    try:
+        pptx_template_path = cache_db.get('pptx_template_file_location')
+    except:
+        pptx_template_path = ""
     survey = Survey(
         data=survey_data,
         control_vars=export_settings['controlVars'],
@@ -90,7 +109,7 @@ async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
     )
     survey.initialize()
     
-    zip_buffer = survey.to_ppt()
+    zip_buffer = survey.to_ppt(template_path=pptx_template_path)
     
     return StreamingResponse(
         zip_buffer,

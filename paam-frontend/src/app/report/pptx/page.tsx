@@ -4,6 +4,7 @@ import CanvasNavBar from "@/components/navbar";
 import saveAs from "file-saver";
 import { toast } from "react-toastify";
 import axios from "axios";
+import UploadFile from "@/components/uploadFile";
 
 const ExportPPTX = () => {
   const items = ["Setting", "Data", "PPTX"];
@@ -25,6 +26,7 @@ const ExportPPTX = () => {
     <div>
       <Canvas className="flex flex-col gap-10">
         <CanvasNavBar items={items} current="report" />
+        <UploadFile apiEndpoint="http://localhost:8000/report/pptx_template"></UploadFile>
         <div>
           <button
             className="relative rounded-lg bg-orange-400 p-3 font-semibold text-white hover:bg-orange-600"

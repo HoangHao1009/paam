@@ -7,7 +7,7 @@ import tempfile
 
 from ..question import Single, Multiple, Number, Rank, Answer
 from ..ctab import CrossTab
-from .utils import _to_excel_buffer, _check_elements, _add_chart_to_prs
+from .utils import _to_excel_buffer, _check_elements, _add_chart_to_prs, PPTConfig
 from ..utils import spss_function
 from ..config import SPSSConfig, DataFrameConfig
 
@@ -352,12 +352,15 @@ class Survey:
 
         return zip_buffer
     
-    def to_ppt(self):
-        prs = Presentation()
+    def to_ppt(self, config: PPTConfig=PPTConfig(), template_path: str=""):
+        prs = Presentation(template_path) if template_path else Presentation()
+        from_template = True if template_path else False
         for base in self.control_vars:
             for target in self.target_vars:
-                ctab = self.crosstab(base, target).df
-                _add_chart_to_prs(prs, ctab, f'{base}_{target}')
+                ctab = self.crosstab(base, target)
+                # ctab.config.total = False
+                df = ctab.df
+                _add_chart_to_prs(prs, df, f'{base}_{target}', config=config, from_template=from_template)
                 
         pptx_buffer = BytesIO()
         prs.save(pptx_buffer)

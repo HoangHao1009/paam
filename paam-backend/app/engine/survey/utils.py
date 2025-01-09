@@ -59,13 +59,11 @@ class PPTConfig:
     data_labels_show_series_name: bool = False
     data_labels_show_value: bool = True
 
-def _add_chart_to_prs(prs: Presentation, df: pd.DataFrame, title):
-    config = PPTConfig()
-    
-    theme_color = config.theme_color
-    
+def _add_chart_to_prs(prs: Presentation, df: pd.DataFrame, title, config: PPTConfig, from_template=False):
+        
     chart_type = XL_CHART_TYPE.COLUMN_CLUSTERED
-    slide_layout = prs.slide_layouts[5]
+    
+    slide_layout = prs.slides[0].slide_layout if from_template else prs.slide_layouts[5]
     slide = prs.slides.add_slide(slide_layout)
 
     chart_data = CategoryChartData()
@@ -92,9 +90,6 @@ def _add_chart_to_prs(prs: Presentation, df: pd.DataFrame, title):
         chart.category_axis.has_title = config.category_axis_has_title
         chart.category_axis.visible = config.category_axis_visible
         chart.category_axis.tick_labels.font.size = Pt(config.category_axis_tick_labels_font_size)
-    except:
-        pass
-    try:
         chart.value_axis.has_major_gridlines = config.value_axis_has_major_gridlines
         chart.value_axis.has_minor_gridlines = config.value_axis_has_minor_gridlines
         chart.value_axis.visible = config.value_axis_visible
