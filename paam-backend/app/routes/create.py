@@ -62,7 +62,7 @@ async def upload_file(file: UploadFile = File(...), cache_db: RedisCacheDB=Depen
 
 @router.post("/create")
 async def create_questionnaire(request: CreateSchema, cache_db: RedisCacheDB=Depends(get_redisdb)):
-    print(request)
+    print("Create Request:", request)
     survey_config = cache_db.get("configuration")
     
     extraction_chain = Extract_Chain(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -73,6 +73,6 @@ async def create_questionnaire(request: CreateSchema, cache_db: RedisCacheDB=Dep
         api_key=survey_config["api_key"]
     )
     
-    creator.create("12710083")
+    creator.create(request.surveyId)
     
     return {"message": "Questionnaire created successfully"}

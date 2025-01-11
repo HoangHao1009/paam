@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { AxiosResponse } from "axios";
 import UploadFile from "@/components/uploadFile";
+import { useEffect } from "react";
 
 const AICreate = () => {
   const items = ["Provider", "Create"];
@@ -15,14 +16,19 @@ const AICreate = () => {
     surveyId: "",
   });
 
-  const handleCreate = async () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
     try {
       const response: AxiosResponse = await axios.post(
         "http://localhost:8000/create/create",
         createRequest,
         {
           headers: {
-            "Content-Type": "application/json", // Chỉ định Content-Type là application/json
+            "Content-Type": "application/json",
           },
         },
       );
@@ -32,6 +38,8 @@ const AICreate = () => {
       toast.error(
         `Failed to create Survey ${createRequest.surveyId}: ${error}`,
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -45,12 +53,12 @@ const AICreate = () => {
       <Canvas className="flex flex-col gap-10 font-sans">
         <CanvasNavBar items={items} current="create"></CanvasNavBar>
         <div className="flex w-40 flex-col gap-5">
-          <UploadFile apiEndpoint="http://localhost:8000/create/upload/"/>
+          <UploadFile apiEndpoint="http://localhost:8000/create/upload/" />
           <label className="flex flex-row items-center gap-5 font-sans text-sm font-semibold">
             <p className="w-16">Survey ID</p>
             <input
               type="text"
-              name="survey_id"
+              name="surveyId"
               className="h-7 w-40 rounded-md border-2 border-gray-300"
               onChange={handleOnChange}
             />
@@ -59,7 +67,7 @@ const AICreate = () => {
             onClick={handleCreate}
             className="rounded-2xl bg-red-400 p-2 font-semibold text-white hover:bg-slate-700"
           >
-            Create
+            {isLoading ? "Creating..." : "Create"}
           </button>
         </div>
       </Canvas>

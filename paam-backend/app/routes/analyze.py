@@ -59,8 +59,11 @@ async def chat(request: ChatSchema, cache_db: RedisCacheDB=Depends(get_redisdb),
         try:
             async for msg, metadata in graph.astream(input=inputs, config=paam.config, stream_mode="messages"):
                 if msg.content and not isinstance(msg, HumanMessage):
-                    tool_calling = "Tool Call:" if isinstance(msg, ToolMessage) else ""
-                    yield f"{tool_calling}{msg.content}"
+                    tool_calling = True if isinstance(msg, ToolMessage) else False
+                    if tool_calling:
+                        yield f'<p class="font-bold italic">Tool Call: <p>{msg.content}<br>'
+                    else:
+                        yield msg.content
         except Exception as e:
             yield f"Error during streaming: {e}"
     try:
