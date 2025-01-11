@@ -20,6 +20,22 @@ const Questions = () => {
     fetchQuestions();
   }, []);
 
+  const handleDeleteQuestion = (deletedQuestionCode: string) => {
+    setQuestions((prevQuestion) =>
+      prevQuestion.filter(
+        (question) => question.questionCode != deletedQuestionCode,
+      ),
+    );
+  };
+
+  const handleUpdateQuestion = async () => {
+    // Gọi lại API để lấy danh sách mới
+    const response: AxiosResponse = await axios.get(
+      "http://localhost:8000/process/questions"
+    );
+    setQuestions(response.data.questionData);
+  };
+
   return (
     <div>
       <Canvas className="flex flex-col gap-10">
@@ -27,7 +43,7 @@ const Questions = () => {
         <div className="flex h-[400px] flex-col gap-5 overflow-y-auto pl-5">
           {questions.map((questions, index) => (
             <div key={index}>
-              <Question {...questions} />
+              <Question {...questions} onDelete={handleDeleteQuestion} onUpdate={handleUpdateQuestion}/>
             </div>
           ))}
         </div>

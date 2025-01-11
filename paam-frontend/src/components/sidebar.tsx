@@ -15,8 +15,8 @@ const Sidebar = ({ items, defaultRoute }: SidebarProps) => {
   };
 
   return (
-    <div className="h-1000 fixed mx-4 mt-5 flex items-center h-[550px] w-60 flex-col rounded-3xl bg-white pt-8 shadow-sm shadow-slate-400">
-      <p className="mt-5 mb-10 font-mono text-4xl font-bold italic">PAAM</p>
+    <div className="h-1000 fixed z-50 mx-4 mt-5 flex h-[550px] w-60 flex-col items-center rounded-3xl bg-white pt-8 shadow-sm shadow-slate-400">
+      <p className="mb-10 mt-5 font-mono text-4xl font-bold italic">PAAM</p>
       <div className="flex flex-col items-center gap-10">
         {items.map((item, index) => (
           <div

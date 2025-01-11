@@ -44,8 +44,8 @@ const ChatFrame: React.FC<ChatFrameProps> = () => {
 
           setMessage((prev) =>
             prev.map((msg, index) =>
-              index === prev.length - 1 ? { ...msg, text: partialText } : msg
-            )
+              index === prev.length - 1 ? { ...msg, text: partialText } : msg,
+            ),
           );
         }
       }
@@ -81,19 +81,22 @@ const ChatFrame: React.FC<ChatFrameProps> = () => {
   };
 
   return (
-    <div className="mx-auto flex h-[450px] w-[95%] flex-col bg-white p-4">
-      <div className="mb-4 flex flex-1 flex-col overflow-y-auto border p-2">
+    <div className="mx-auto flex h-[450px] w-[95%] flex-col bg-white p-4 font-sans text-[10px]">
+      <div className="mb-4 flex flex-1 flex-col overflow-y-scroll border p-2">
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`mb-2 max-w-[70%] break-words rounded p-2 text-black ${
+            className={`mb-2 break-words rounded p-2 text-black ${
               message.sender === "user"
-                ? "ml-auto bg-blue-300 text-right"
-                : "mr-auto bg-gray-200 text-left"
+                ? "ml-auto max-w-[70%] bg-blue-300 text-right"
+                : "mr-auto max-w-[90%] break-words bg-gray-200 text-left"
             }`}
-          >
-            {message.text}
-          </div>
+            dangerouslySetInnerHTML={{
+              __html: message.text
+                .replace(/\n+/g, '\n')
+                .replace(/\n/g, "<br>")
+            }}
+          ></div>
         ))}
       </div>
       <div className="flex gap-2">
