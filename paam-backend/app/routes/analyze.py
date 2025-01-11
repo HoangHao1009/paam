@@ -7,7 +7,7 @@ from app.schemas.analyze_schemas import CrossTabSchema, ChatSchema
 from app.engine.ai import PAAMSupervisor
 
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, ToolMessage
 from langgraph.checkpoint.memory import MemorySaver 
 
 router = APIRouter()
@@ -15,15 +15,16 @@ router = APIRouter()
 @router.post("/crosstab")
 async def crosstab(crosstab_schema: CrossTabSchema, cache_db: RedisCacheDB=Depends(get_redisdb)):
     survey = cache_db.get_survey()
-    survey.initialize()
     
     crosstab = survey.crosstab(base=crosstab_schema.base, target=crosstab_schema.target, deep_by=crosstab_schema.deepBy)
     crosstab.config.alpha = crosstab_schema.alpha
     crosstab.config.pct = crosstab_schema.pct
     
+    html_table = crosstab.df.to_html()
+        
     return JSONResponse(
         content={
-            'crosstabData': crosstab.df.to_html()
+            'crosstabData': html_table
         },
         status_code=200
     )
@@ -45,7 +46,6 @@ memory_container = MemoryContainer()
 @router.post("/chat")
 async def chat(request: ChatSchema, cache_db: RedisCacheDB=Depends(get_redisdb), memory: MemorySaver = Depends(memory_container.get_memory)):
     survey = cache_db.get_survey()
-    survey.initialize()
     
     paam.add_survey(survey)
                     
@@ -59,7 +59,8 @@ async def chat(request: ChatSchema, cache_db: RedisCacheDB=Depends(get_redisdb),
         try:
             async for msg, metadata in graph.astream(input=inputs, config=paam.config, stream_mode="messages"):
                 if msg.content and not isinstance(msg, HumanMessage):
-                    yield msg.content
+                    tool_calling = "Tool Call:" if isinstance(msg, ToolMessage) else ""
+                    yield f"{tool_calling}{msg.content}"
         except Exception as e:
             yield f"Error during streaming: {e}"
     try:

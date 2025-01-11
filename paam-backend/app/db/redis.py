@@ -48,9 +48,20 @@ class RedisCacheDB:
         if self.exists(key):
             self.client.expire(key, ttl)
             
-    def get_survey(self) -> Survey:
+    def get_survey(self, init: bool=True) -> Survey:
         survey_data = self.get('survey_data')
-        return Survey(data=survey_data)
+        survey = Survey(data=survey_data)
+        survey.initialize()
+
+        if self.exists("compute_constructions"):
+            compute_constructions = self.get("compute_constructions")
+        else:
+            compute_constructions = []
+            self.set("compute_constructions", compute_constructions)
+            
+        survey._get_constructed_questions(compute_constructions)
+
+        return survey
         
 def get_redisdb() -> RedisCacheDB:
     redis_db = RedisCacheDB()

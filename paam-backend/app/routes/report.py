@@ -35,15 +35,11 @@ async def set_pptx_template(file: UploadFile = File(...), cache_db: RedisCacheDB
 
 @router.get("/excel")
 async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
-    survey_data = cache_db.get('survey_data')
     export_settings = cache_db.get('export_settings')
-    survey = Survey(
-        data=survey_data,
-        control_vars=export_settings['controlVars'],
-        target_vars=export_settings['targetVars'],
-        deep_vars=export_settings['deepVars'],
-    )
-    survey.initialize()
+    survey = cache_db.get_survey()
+    survey.control_vars = export_settings['controlVars']
+    survey.target_vars = export_settings['targetVars']
+    survey.deep_vars = export_settings['deepVars']
     
     zip_buffer = survey.to_excel()
     
@@ -55,16 +51,12 @@ async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
 
 @router.get("/spss")
 async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
-    survey_data = cache_db.get('survey_data')
     export_settings = cache_db.get('export_settings')
-    survey = Survey(
-        data=survey_data,
-        control_vars=export_settings['controlVars'],
-        target_vars=export_settings['targetVars'],
-        deep_vars=export_settings['deepVars'],
-    )
-    survey.initialize()
-    
+    survey = cache_db.get_survey()
+    survey.control_vars = export_settings['controlVars']
+    survey.target_vars = export_settings['targetVars']
+    survey.deep_vars = export_settings['deepVars']
+        
     zip_buffer = survey.to_spss()
     
     return StreamingResponse(
@@ -75,15 +67,11 @@ async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
 
 @router.get("/datasets")
 async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
-    survey_data = cache_db.get('survey_data')
     export_settings = cache_db.get('export_settings')
-    survey = Survey(
-        data=survey_data,
-        control_vars=export_settings['controlVars'],
-        target_vars=export_settings['targetVars'],
-        deep_vars=export_settings['deepVars'],
-    )
-    survey.initialize()
+    survey = cache_db.get_survey()
+    survey.control_vars = export_settings['controlVars']
+    survey.target_vars = export_settings['targetVars']
+    survey.deep_vars = export_settings['deepVars']
     
     zip_buffer = survey.to_datasets()
     
@@ -95,19 +83,15 @@ async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
     
 @router.get("/pptx")
 async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
-    survey_data = cache_db.get('survey_data')
-    export_settings = cache_db.get('export_settings')
     try:
         pptx_template_path = cache_db.get('pptx_template_file_location')
     except:
         pptx_template_path = ""
-    survey = Survey(
-        data=survey_data,
-        control_vars=export_settings['controlVars'],
-        target_vars=export_settings['targetVars'],
-        deep_vars=export_settings['deepVars'],
-    )
-    survey.initialize()
+    export_settings = cache_db.get('export_settings')
+    survey = cache_db.get_survey()
+    survey.control_vars = export_settings['controlVars']
+    survey.target_vars = export_settings['targetVars']
+    survey.deep_vars = export_settings['deepVars']
     
     zip_buffer = survey.to_ppt(template_path=pptx_template_path)
     

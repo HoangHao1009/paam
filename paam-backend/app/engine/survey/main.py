@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import Union, List
+from typing import Union, List, Dict
 from io import BytesIO
 import pyreadstat
 import zipfile
@@ -12,6 +12,7 @@ from ..utils import spss_function
 from ..config import SPSSConfig, DataFrameConfig
 
 from pptx import Presentation
+import ast
 
 question_type = Union[Single, Multiple, Number, Rank]
 
@@ -114,11 +115,23 @@ class Survey:
             question.sort_answer(list(range(1, len(question.answers) + 1)), by='scale')
             
             all_questions.append(question)
-            
-        all_questions.sort(key=lambda item: item.order) 
+            all_questions.sort(key=lambda item: item.order) 
         
         return all_questions
-        
+  
+    def _get_constructed_questions(self, compute_constructions: List[Dict]):
+        for construction in compute_constructions:
+            root_question = self.get_question(construction['rootQuestionCode'])
+            new_question = root_question.compute(
+                construct_dict=ast.literal_eval(construction['construction']),
+                new_code=construction['newQuestionCode'],
+                new_text=construction['newQuestionText'],
+                method=construction['method'],
+                by=construction['by'],
+            )
+            self.questions.append(new_question)
+            self.questions.sort(key=lambda item: item.order)
+             
     def get_question(self, key: Union[List[str], str]):
         """
         Getting questions by question code
@@ -373,3 +386,5 @@ class Survey:
         zip_buffer.seek(0)
         
         return zip_buffer
+
+
