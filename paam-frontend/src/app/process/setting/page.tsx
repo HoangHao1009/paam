@@ -6,7 +6,7 @@ import { ChangeEvent, useState } from "react";
 import { toast } from "react-toastify";
 
 const ExportSetting = () => {
-  const items = ["Setting", "Data", "PPTX"];
+  const items = ["Questions", "Setting", "Data"];
 
   const [exportSettingRequest, setexportSettingRequest] = useState({
     controlVars: [],
@@ -45,7 +45,7 @@ const ExportSetting = () => {
   return (
     <div>
       <Canvas className="flex flex-col gap-10">
-        <CanvasNavBar items={items} current="report" />
+        <CanvasNavBar items={items} current="process" />
         <form className="flex flex-col gap-5 pl-5">
           <label className="flex flex-row items-center gap-5 font-sans text-sm font-semibold">
             <p className="w-28">Control Variables</p>

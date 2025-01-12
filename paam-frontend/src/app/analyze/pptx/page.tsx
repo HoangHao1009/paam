@@ -7,7 +7,7 @@ import axios from "axios";
 import UploadFile from "@/components/uploadFile";
 
 const ExportPPTX = () => {
-  const items = ["Setting", "Data", "PPTX"];
+  const items = ["Crosstab", "PPTX"];
 
   const handleDownloadClick = async (type: string) => {
     try {
@@ -25,7 +25,7 @@ const ExportPPTX = () => {
   return (
     <div>
       <Canvas className="flex flex-col gap-10">
-        <CanvasNavBar items={items} current="report" />
+        <CanvasNavBar items={items} current="analyze" />
         <UploadFile apiEndpoint="http://localhost:8000/report/pptx_template"></UploadFile>
         <div>
           <button

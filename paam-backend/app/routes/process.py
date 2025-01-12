@@ -5,8 +5,6 @@ from fastapi.exceptions import HTTPException
 from app.db.redis import get_redisdb, RedisCacheDB
 from app.schemas.process_schemas import QuestionComputeSchema, DeleteConstructionSchema
 
-import ast
-
 router = APIRouter()
 
 @router.get("/survey_data")
@@ -17,7 +15,7 @@ async def read_survey_data(cache_db: RedisCacheDB=Depends(get_redisdb)):
         },
         status_code=200
     )
-    
+
 @router.post("/delete")
 async def delete_compute_constructions(delete_schema: DeleteConstructionSchema, cache_db: RedisCacheDB=Depends(get_redisdb)):
     compute_constructions = cache_db.get('compute_constructions')

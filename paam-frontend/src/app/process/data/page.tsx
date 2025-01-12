@@ -6,7 +6,7 @@ import saveAs from "file-saver";
 import { toast } from "react-toastify";
 
 const ExportData = () => {
-  const items = ["Setting", "Data", "PPTX"];
+  const items = ["Questions", "Setting", "Data"];
 
   const handleDownloadClick = async (type: string) => {
     try {
@@ -24,7 +24,7 @@ const ExportData = () => {
   return (
     <div>
       <Canvas className="flex flex-col gap-10">
-        <CanvasNavBar items={items} current="report" />
+        <CanvasNavBar items={items} current="process" />
         <div>
           <button
             className="relative rounded-lg bg-green-300 p-3 font-semibold text-slate-600 hover:bg-green-600 hover:text-white"

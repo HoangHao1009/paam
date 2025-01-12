@@ -23,25 +23,26 @@ async def set_config(config_schema: ConfigSchema, cache_db: RedisCacheDB=Depends
     
     cache_db.set('configuration', config)
     
-    questionpro = QuestionPro(
-        survey_id=config_schema.surveyId, 
-        api_key=config_schema.apiKey
-    )
-    
-    await questionpro.fetch_data()
-            
-    data = questionpro.data
-    
-    cache_db.set('survey_data', data)
-    cache_db.set('survey_name', questionpro.name)
-    
-    return JSONResponse(
-        content={
-            'message': 'Setting config successfully',
-            'config': {snake_to_camel(key): value for key, value in config.items()},
-        },
-        status_code=200
-    )
+    if config_schema.surveyId != "":
+        questionpro = QuestionPro(
+            survey_id=config_schema.surveyId, 
+            api_key=config_schema.apiKey
+        )
+        
+        await questionpro.fetch_data()
+                
+        data = questionpro.data
+        
+        cache_db.set('survey_data', data)
+        cache_db.set('survey_name', questionpro.name)
+        
+        return JSONResponse(
+            content={
+                'message': 'Setting config successfully',
+                'config': {snake_to_camel(key): value for key, value in config.items()},
+            },
+            status_code=200
+        )        
 
 llm = ChatOpenAI(model='gpt-3.5-turbo', streaming=True)
 

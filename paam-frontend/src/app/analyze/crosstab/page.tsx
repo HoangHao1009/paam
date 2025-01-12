@@ -7,7 +7,7 @@ import axios from "axios";
 
 
 const Crosstab = () => {
-  const items = ["Crosstab", "Chat"];
+  const items = ["Crosstab", "PPTX"];
 
   const [ctabRequest, setCtabRequest] = useState({
     base: "",
@@ -69,6 +69,8 @@ const Crosstab = () => {
               <input
                 type="text"
                 name="alpha"
+                placeholder="0.05"
+                defaultValue="0.05"
                 className="h-7 w-10 rounded-md border-2 border-gray-300"
                 onChange={handleOnChange}
               />

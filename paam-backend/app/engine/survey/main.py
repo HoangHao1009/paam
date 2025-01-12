@@ -92,30 +92,33 @@ class Survey:
         answer_lookup = {answer['id']: answer for answer in self.data['answers']}
         all_questions = []
         for question_data in self.data['questions']:
-            answers = []
-            for answer_id in question_data['answers']:
-                answer_data = answer_lookup[answer_id]
-                answer = Answer(**answer_data, question_code=question_data['code'])
-                answer.is_rank = True if question_data['type'] == 'rank' else False
-                answers.append(answer)
+            try:
+                answers = []
+                for answer_id in question_data['answers']:
+                    answer_data = answer_lookup[answer_id]
+                    answer = Answer(**answer_data, question_code=question_data['code'])
+                    answer.is_rank = True if question_data['type'] == 'rank' else False
+                    answers.append(answer)
+                    
+                question_data['answers'] = answers
+                    
+                if question_data['type'] in ['sa', 'sa_matrix', 'text']:
+                    question = Single(**question_data)
+                elif question_data['type'] in ['ma', 'ma_matrix']:
+                    question = Multiple(**question_data)
+                elif question_data['type'] in ['number']:
+                    question = Number(**question_data)
+                elif question_data['type'] in ['rank']:
+                    question = Rank(**question_data)
+                else:
+                    raise ValueError(f"Question with id: {question_data['id']} code: {question_data['code']} with type: {question_data['type']} can not be processed")
                 
-            question_data['answers'] = answers
+                question.sort_answer(list(range(1, len(question.answers) + 1)), by='scale')
                 
-            if question_data['type'] in ['sa', 'sa_matrix', 'text']:
-                question = Single(**question_data)
-            elif question_data['type'] in ['ma', 'ma_matrix']:
-                question = Multiple(**question_data)
-            elif question_data['type'] in ['number']:
-                question = Number(**question_data)
-            elif question_data['type'] in ['rank']:
-                question = Rank(**question_data)
-            else:
-                raise ValueError(f"Question with id: {question_data['id']} code: {question_data['code']} with type: {question_data['type']} can not be processed")
-            
-            question.sort_answer(list(range(1, len(question.answers) + 1)), by='scale')
-            
-            all_questions.append(question)
-            all_questions.sort(key=lambda item: item.order) 
+                all_questions.append(question)
+                all_questions.sort(key=lambda item: item.order) 
+            except Exception as e:
+                print(f"Error when extracting question {question_data['code']}: {e}")
         
         return all_questions
   

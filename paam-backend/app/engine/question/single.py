@@ -19,7 +19,7 @@ class Single(Question):
             respondents.extend(answers.respondents)
             
         if len(respondents) == 0:
-            raise AttributeError(f"Question have no respondent")
+            raise AttributeError(f"Question {self.code} have no respondent")
             
         invalid = _get_duplicates(respondents)
         

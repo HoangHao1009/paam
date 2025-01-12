@@ -6,7 +6,7 @@ import ChatFrame from "@/components/chat";
 import { toast } from "react-toastify";
 
 const AIChat = () => {
-  const items = ["Crosstab", "Chat"];
+  const items = ["Chat"];
 
   return (
     <div>

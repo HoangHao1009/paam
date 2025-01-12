@@ -4,7 +4,7 @@ from fastapi.exceptions import HTTPException
 
 from app.db.redis import get_redisdb, RedisCacheDB
 from app.schemas.analyze_schemas import CrossTabSchema, ChatSchema
-from app.engine.ai import PAAMSupervisor
+from app.engine.ai import PAAMSupervisor, AIOAgent
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, ToolMessage
@@ -32,6 +32,7 @@ async def crosstab(crosstab_schema: CrossTabSchema, cache_db: RedisCacheDB=Depen
     
 llm = ChatOpenAI(model='gpt-3.5-turbo', streaming=True)
 paam = PAAMSupervisor(llm)
+aioagent = AIOAgent(llm)
 
 class MemoryContainer:
     def __init__(self):
@@ -47,11 +48,14 @@ memory_container = MemoryContainer()
 async def chat(request: ChatSchema, cache_db: RedisCacheDB=Depends(get_redisdb), memory: MemorySaver = Depends(memory_container.get_memory)):
     survey = cache_db.get_survey()
     
-    paam.add_survey(survey)
-                    
-    builder = paam.initialize()
+    # paam.add_survey(survey)    
+    # builder = paam.initialize()
+    # graph = builder.compile(checkpointer=memory)
     
-    graph = builder.compile(checkpointer=memory)
+    aioagent.add_survey(survey)
+    aioagent.set_tavily_max_result(3)
+    
+    graph = aioagent.initialize(checkpointer=memory)
     
     inputs = {"messages": [HumanMessage(content=request.message)]}
 
@@ -61,7 +65,12 @@ async def chat(request: ChatSchema, cache_db: RedisCacheDB=Depends(get_redisdb),
                 if msg.content and not isinstance(msg, HumanMessage):
                     tool_calling = True if isinstance(msg, ToolMessage) else False
                     if tool_calling:
-                        yield f'<p class="font-bold italic">Tool Call: <p>{msg.content}<br>'
+                        yield f"""
+                        <p class="font-bold italic">--AI Thinking-- <p>
+                        {msg.content}
+                        <p class="font-bold italic">--Done Thinking-- <p>
+                        <br>
+                        """
                     else:
                         yield msg.content
         except Exception as e:

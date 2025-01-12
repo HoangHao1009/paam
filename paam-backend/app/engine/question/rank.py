@@ -23,7 +23,7 @@ class Rank(Question):
             invalid.extend(_get_duplicates(respondents))
             
         if len(respondents) == 0:
-            raise AttributeError(f"Question have no respondent")
+            raise AttributeError(f"Question {self.code} have no respondent")
 
         if len(invalid) > 0:
             raise ValueError(f"Error - Duplicates occurs: {invalid}")

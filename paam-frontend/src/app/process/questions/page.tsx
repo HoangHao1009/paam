@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import Question from "@/components/question";
 
 const Questions = () => {
-  const items = ["Questions"];
+  const items = ["Questions", "Setting", "Data"];
   const [questions, setQuestions] = useState<any[]>([]);
 
   useEffect(() => {
