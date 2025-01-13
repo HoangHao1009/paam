@@ -59,7 +59,26 @@ class PPTConfig:
     data_labels_show_series_name: bool = False
     data_labels_show_value: bool = True
 
-def _add_chart_to_prs(prs: Presentation, df: pd.DataFrame, title, config: PPTConfig, from_template=False):
+def _add_chart_to_prs(
+        prs: Presentation, df: pd.DataFrame, 
+        title, config: PPTConfig, 
+        from_template=False,
+        question_text_1: str="",
+        question_text_2: str=""
+    ):
+    
+    def emu_to_inches(emu):
+        return Inches(emu/ 914400)
+    
+    def add_textbox(text, x, y, width, height, font_name, font_size=13, italic=True):
+        text_box = slide.shapes.add_textbox(x, y, width, height)
+        text_frame = text_box.text_frame
+        p = text_frame.add_paragraph()
+        p.text = text
+        p.font.name = font_name
+        p.font.size = Pt(font_size)
+        p.font.italic = italic
+        text_frame.word_wrap = False
         
     chart_type = XL_CHART_TYPE.COLUMN_CLUSTERED
     
@@ -71,10 +90,19 @@ def _add_chart_to_prs(prs: Presentation, df: pd.DataFrame, title, config: PPTCon
     for col in df.columns:
         chart_data.add_series(str(col[0]), df[col])
         
-    x, y, cx, cy = Inches(2), Inches(2), Inches(6), Inches(4.5)
+    slide_width = prs.slide_width
+    slide_height = prs.slide_height
+    
+    chart_width = slide_width / 2
+    chart_height = slide_height / 2
+    x = emu_to_inches((slide_width - chart_width) / 2)
+    y = emu_to_inches((slide_height - chart_height) / 2)
+    cx = emu_to_inches(chart_width)
+    cy = emu_to_inches(chart_height)
+            
     chart = slide.shapes.add_chart(
         chart_type=chart_type,
-        x=x, y=y, cx=cx, cy=cy, 
+        x=x, y=y, cx=cx, cy=cy,
         chart_data=chart_data
     ).chart
     
@@ -82,6 +110,11 @@ def _add_chart_to_prs(prs: Presentation, df: pd.DataFrame, title, config: PPTCon
     chart.has_legend = config.has_legend
     chart.has_title = config.has_title
     chart.chart_title.text_frame.text = title
+    
+    title_font = chart.chart_title.text_frame.paragraphs[0].font
+    title_font.name = config.font
+    title_font.size = Pt(14)
+
     chart.legend.position = XL_LEGEND_POSITION.TOP
     chart.legend.font.size = Pt(config.legend_font_size)
     try:
@@ -99,3 +132,13 @@ def _add_chart_to_prs(prs: Presentation, df: pd.DataFrame, title, config: PPTCon
     fill = chart.plots[0].series[0].format.fill
     fill.solid()
     fill.fore_color.rgb = RGBColor(79, 129, 189)
+    
+    text_width = Inches(2)
+    text_height = Inches(0.5)
+    text_x = Inches(0.2)
+    text_y1 = Inches(slide_height / 914400 - 0.9)
+    text_y2 = Inches(slide_height / 914400 - 0.7)
+    
+    add_textbox(question_text_1, text_x, text_y1, text_width, text_height, config.font, 10, True)
+    add_textbox(question_text_2, text_x, text_y2, text_width, text_height, config.font, 10, True)
+    

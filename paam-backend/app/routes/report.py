@@ -50,7 +50,7 @@ async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
     )
 
 @router.get("/spss")
-async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
+async def get_spss(cache_db: RedisCacheDB=Depends(get_redisdb)):
     export_settings = cache_db.get('export_settings')
     survey = cache_db.get_survey()
     survey.control_vars = export_settings['controlVars']
@@ -82,7 +82,7 @@ async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
     )
     
 @router.get("/pptx")
-async def get_excel(cache_db: RedisCacheDB=Depends(get_redisdb)):
+async def get_pptx(cache_db: RedisCacheDB=Depends(get_redisdb)):
     try:
         pptx_template_path = cache_db.get('pptx_template_file_location')
     except:

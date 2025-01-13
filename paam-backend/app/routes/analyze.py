@@ -20,7 +20,7 @@ async def crosstab(crosstab_schema: CrossTabSchema, cache_db: RedisCacheDB=Depen
     crosstab.config.alpha = crosstab_schema.alpha
     crosstab.config.pct = crosstab_schema.pct
     
-    html_table = crosstab.df.to_html()
+    html_table = crosstab.df_html
         
     return JSONResponse(
         content={

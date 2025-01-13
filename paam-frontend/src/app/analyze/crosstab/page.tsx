@@ -31,7 +31,7 @@ const Crosstab = () => {
     e.preventDefault();
 
     const response = await axios.post(
-      "http://localhost:8000/analyze/crosstab",
+      "http://localhost:8000/analyze/crosstab/",
       ctabRequest,
     );
     const ctabData = response.data.crosstabData;
@@ -70,7 +70,7 @@ const Crosstab = () => {
                 type="text"
                 name="alpha"
                 placeholder="0.05"
-                defaultValue="0.05"
+                // defaultValue="0.05"
                 className="h-7 w-10 rounded-md border-2 border-gray-300"
                 onChange={handleOnChange}
               />
@@ -96,7 +96,6 @@ const Crosstab = () => {
         </form>
         <div
           dangerouslySetInnerHTML={{ __html: ctabData }}
-          className="table-bordered scrollbar-thin scrollbar-corner-background h-[320px] w-[800px] overflow-scroll rounded-md border-2 border-black font-sans text-[10px]"
         />
       </Canvas>
     </div>

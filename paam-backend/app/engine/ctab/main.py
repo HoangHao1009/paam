@@ -130,4 +130,15 @@ class CrossTab:
             return self._ctab_sm()
         elif isinstance(self.target, (Number)):
             return self._ctab_num()
+        
+    @property
+    def df_html(self) -> str:
+        html_table = self.df.to_html(escape=False).replace("\n", "")
+        html_div = f"""
+        <div class="table-bordered scrollbar-thin scrollbar-corner-background h-[320px] w-full overflow-scroll rounded-md border-2 border-black font-sans text-[10px]">
+        {html_table}
+        </div>
+        """
+        return html_div
+
     

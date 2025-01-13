@@ -32,13 +32,7 @@ class AIOAgent:
             - pct: decide cross table summarize in count or count percentage format.
             """
             ctab = self.survey.crosstab(base=base, target=target, alpha=alpha, pct=pct)
-            html_table = ctab.df.to_html().replace("\n", "")
-            html_div = f"""
-            <div class="table-bordered scrollbar-thin scrollbar-corner-background h-[320px] w-full overflow-scroll rounded-md border-2 border-black font-sans text-[10px]">
-            {html_table}
-            </div>
-            """
-            return html_div
+            return ctab.df_html
 
         @tool
         def get_question(question_code: str):

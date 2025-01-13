@@ -376,7 +376,12 @@ class Survey:
                 ctab = self.crosstab(base, target)
                 # ctab.config.total = False
                 df = ctab.df
-                _add_chart_to_prs(prs, df, f'{base}_{target}', config=config, from_template=from_template)
+                _add_chart_to_prs(
+                    prs=prs, df=df, title=f'{base} X {target}', 
+                    config=config, from_template=from_template,
+                    question_text_1=f"{ctab.base.code} - {ctab.base.text}",
+                    question_text_2=f"{ctab.target.code} - {ctab.target.text}" 
+                )
                 
         pptx_buffer = BytesIO()
         prs.save(pptx_buffer)
