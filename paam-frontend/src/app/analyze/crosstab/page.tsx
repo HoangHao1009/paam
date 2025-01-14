@@ -5,7 +5,6 @@ import CanvasNavBar from "@/components/navbar";
 import { ChangeEvent, useState } from "react";
 import axios from "axios";
 
-
 const Crosstab = () => {
   const items = ["Crosstab", "PPTX"];
 
@@ -42,7 +41,7 @@ const Crosstab = () => {
     <div>
       <Canvas className="flex flex-col gap-2">
         <CanvasNavBar items={items} current="analyze" />
-        <form className="flex flex-row gap-5 items-center font-sans text-sm font-semibold mb-5">
+        <form className="mb-5 flex flex-row items-center gap-5 font-sans text-sm font-semibold">
           <div className="flex flex-row items-center gap-5">
             <label className="flex flex-row items-center gap-2">
               Base Question:
@@ -95,6 +94,7 @@ const Crosstab = () => {
           </button>
         </form>
         <div
+          className=""
           dangerouslySetInnerHTML={{ __html: ctabData }}
         />
       </Canvas>
