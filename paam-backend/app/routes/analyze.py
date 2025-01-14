@@ -5,6 +5,7 @@ from fastapi.exceptions import HTTPException
 from app.db.redis import get_redisdb, RedisCacheDB
 from app.schemas.analyze_schemas import CrossTabSchema, ChatSchema
 from app.engine.ai import PAAMSupervisor, AIOAgent
+from app.core.app_config import settings
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, ToolMessage
@@ -21,7 +22,6 @@ async def crosstab(crosstab_schema: CrossTabSchema, cache_db: RedisCacheDB=Depen
     crosstab.config.pct = crosstab_schema.pct
     
     html_table = crosstab.df_html
-        
     return JSONResponse(
         content={
             'crosstabData': html_table
@@ -30,7 +30,7 @@ async def crosstab(crosstab_schema: CrossTabSchema, cache_db: RedisCacheDB=Depen
     )
     
     
-llm = ChatOpenAI(model='gpt-3.5-turbo', streaming=True)
+llm = ChatOpenAI(model=settings.openai_model, streaming=True)
 paam = PAAMSupervisor(llm)
 aioagent = AIOAgent(llm)
 

@@ -5,6 +5,7 @@ from app.schemas.create_schemas import ConfigSchema, CreateSchema
 from app.engine import QuestionPro
 from app.engine.utils import snake_to_camel
 from app.db.redis import get_redisdb, RedisCacheDB
+from app.core.app_config import settings
 
 from langchain_openai import ChatOpenAI
 from app.engine.ai import QuestionnaireCreator, Extract_Chain
@@ -44,7 +45,7 @@ async def set_config(config_schema: ConfigSchema, cache_db: RedisCacheDB=Depends
             status_code=200
         )        
 
-llm = ChatOpenAI(model='gpt-3.5-turbo', streaming=True)
+llm = ChatOpenAI(model=settings.openai_model, streaming=True)
 
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...), cache_db: RedisCacheDB=Depends(get_redisdb)):

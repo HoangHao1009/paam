@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     redis_db: int = 0
     app_name: str = "PAAM"
     openai_api_key: str
+    openai_model: str
     tavily_api_key: str
     postgres_db_uri: str
     
